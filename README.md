@@ -27,5 +27,23 @@ Run `make help` to get a list of available targets.
 ## Docker
 A docker compose file is provided that can be tweaked to get this working in docker 
 
+## Expected Results
+There is a deadline of 10 seconds for each client connection, so expected results should look like this:
 
+```go
+bin/darwin_amd64/client -server_addr localhost:10000
+2021/11/22 20:07:57 Dialing localhost:10000
+2021/11/22 20:07:57 Streaming...
+Ping=1 Pong=0
+Ping=2 Pong=1
+Ping=3 Pong=2
+Ping=4 Pong=3
+Ping=5 Pong=4
+Ping=6 Pong=5
+Ping=7 Pong=6
+Ping=8 Pong=7
+Ping=9 Pong=8
+Ping=10 Pong=9
+2021/11/22 20:08:07 rpc error: code = DeadlineExceeded desc = context deadline exceeded
 
+```
