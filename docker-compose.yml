@@ -1,0 +1,8 @@
+services:
+  gserver:
+    image:  chrisccoy/server:0.0.1__linux_amd64
+    ports:
+      - "10000:10000"
+  gclient:
+    image:  chrisccoy/client:0.0.1__linux_amd64
+    command: -server_addr "gserver:10000"
