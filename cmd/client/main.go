@@ -26,6 +26,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"google.golang.org/grpc/credentials"
 	"log"
 	"time"
 
@@ -38,11 +39,12 @@ var (
 	caFile             = flag.String("ca_file", "", "The file containing the CA root cert file")
 	serverAddr         = flag.String("server_addr", "localhost:10000", "The server address in the format of host:port")
 	serverHostOverride = flag.String("server_host_override", "x.test.example.com", "The server name used to verify the hostname returned by the TLS handshake")
+	timeout            = flag.Int("server_timeout", 60, "The server deadline context for client connections")
 )
 
 // runRouteChat receives a sequence of route notes, while sending notes for various locations.
 func doStream(client pb.StreamerClient) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	stream, err := client.AckNack(ctx)
 	if err != nil {
@@ -72,9 +74,9 @@ func doStream(client pb.StreamerClient) {
 func main() {
 	flag.Parse()
 	var opts []grpc.DialOption
-/*	if *tls {
+	if *tls {
 		if *caFile == "" {
-			*caFile = data.Path("x509/ca_cert.pem")
+			log.Fatal("Illegal: caFile options is blank with tls option=true")
 		}
 		creds, err := credentials.NewClientTLSFromFile(*caFile, *serverHostOverride)
 		if err != nil {
@@ -84,9 +86,8 @@ func main() {
 	} else {
 		opts = append(opts, grpc.WithInsecure())
 	}
-*/
+
 	opts = append(opts, grpc.WithBlock())
-	opts = append(opts, grpc.WithInsecure())
 	log.Printf("Dialing %s\n", *serverAddr)
 	conn, err := grpc.Dial(*serverAddr, opts...)
 	if err != nil {

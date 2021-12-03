@@ -26,6 +26,7 @@ import (
 	"flag"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"io"
 	"log"
 	"net"
@@ -36,8 +37,8 @@ import (
 
 var (
 	tls        = flag.Bool("tls", false, "Connection uses TLS if true, else plain TCP")
-	certFile   = flag.String("cert_file", "", "The TLS cert file")
-	keyFile    = flag.String("key_file", "", "The TLS key file")
+	certFile   = flag.String("cert", "", "The TLS cert file")
+	keyFile    = flag.String("key", "", "The TLS key file")
 	jsonDBFile = flag.String("json_db_file", "", "A json file containing a list of features")
 	port       = flag.Int("port", 10000, "The server port")
 )
@@ -45,7 +46,7 @@ var (
 type strServer struct {
 	pb.StreamerServer
 
-	mu         sync.Mutex // protects routeNotes
+	mu         sync.Mutex // protects routeNotepwds
 }
 
 func (s *strServer) AckNack(stream pb.Streamer_AckNackServer) error {
@@ -70,27 +71,28 @@ func newServer() *strServer {
 
 func main() {
 	flag.Parse()
+	fmt.Printf("%s- %s- %s-\n", *tls, *certFile, *keyFile)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	var opts []grpc.ServerOption
-/*	if *tls {
+	if *tls {
 		if *certFile == "" {
-			*certFile = data.Path("x509/server_cert.pem")
+			log.Fatalf("Illegal: CertFile blank <%s> with tls option=true", *certFile)
 		}
 		if *keyFile == "" {
-			*keyFile = data.Path("x509/server_key.pem")
+			log.Fatal("Illegal: KeyFile blank with tls option=true")
 		}
 		creds, err := credentials.NewServerTLSFromFile(*certFile, *keyFile)
 		if err != nil {
 			log.Fatalf("Failed to generate credentials %v", err)
 		}
 		opts = []grpc.ServerOption{grpc.Creds(creds)}
-	}*/
+	}
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterStreamerServer(grpcServer, newServer())
-	log.Printf("%v", lis)
+	log.Println("Serving...")
 	grpcServer.Serve(lis)
 }
 

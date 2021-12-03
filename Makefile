@@ -25,7 +25,7 @@ REGISTRY ?= chrisccoy
 #VERSION ?= $(shell git describe --tags --always --dirty)
 #
 # This version-strategy uses a manual value to set the version string
-VERSION ?= 0.0.1
+VERSION ?= 0.0.2
 
 PKG ?= github.com/chrisccoy/grpc-stream
 
@@ -140,7 +140,6 @@ $(foreach outbin,$(OUTBINS),$(eval  \
 # This is the target definition for all outbins.
 $(OUTBINS):
 	@true
-
 # Each stampfile target can reference an $(OUTBIN) variable.
 $(foreach outbin,$(OUTBINS),$(eval $(strip   \
     .go/$(outbin).stamp: OUTBIN = $(outbin)  \
