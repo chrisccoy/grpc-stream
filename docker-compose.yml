@@ -1,8 +1,13 @@
 services:
   gserver:
-    image:  chrisccoy/server:0.0.1__linux_amd64
+    image:  chrisccoy/server:0.0.2__linux_amd64
+    volumes:
+    -  /Users/ccoy/workspace/go/src/github.com/grpc/grpc-go/examples/data/x509/:/certs
     ports:
       - "10000:10000"
+    command: -cert /certs/server_cert.pem -key /certs/server_key.pem -tls true
   gclient:
-    image:  chrisccoy/client:0.0.1__linux_amd64
-    command: -server_addr "gserver:10000"
+    image:  chrisccoy/client:0.0.2__linux_amd64
+    volumes:
+      -  /Users/ccoy/workspace/go/src/github.com/grpc/grpc-go/examples/data/x509/:/certs
+    command: -server_addr "gserver:10000" -ca_file /certs/ca_cert.pem -tls true
